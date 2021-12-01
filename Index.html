@@ -1,0 +1,615 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <!--FIRST SCREEN STUFF-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- =============================================================================================== -->
+    <!--<link rel="icon" type="image/png" href="images/icons/favicon.ico" />-->
+    <!-- =============================================================================================== -->
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <!-- =============================================================================================== -->
+    <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+    <!-- =============================================================================================== -->
+    <link rel="stylesheet" type="text/css" href="fonts/iconic/css/material-design-iconic-font.min.css">
+    <!-- =============================================================================================== -->
+    <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+    <!-- =============================================================================================== -->
+    <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+    <!-- =============================================================================================== -->
+    <link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+    <!-- =============================================================================================== -->
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <!-- =============================================================================================== -->
+    <link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+    <!-- =============================================================================================== -->
+    <link href="css/util.css" rel="stylesheet" />
+    <!-- =============================================================================================== -->
+    <link href="css/util.css" rel="stylesheet" />
+    <!--END OF FIRST SCREEN STUFF-->
+    <!--FONTS-->
+    <link href="https://fonts.googleapis.com/css2?family=Suez+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:ital,wght@1,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@700&display=swap" rel="stylesheet">
+    <!--END OF FONTS-->
+
+
+    <script src="js/movies.js"></script>
+    <script src="js/posters.js"></script>
+    <script src="js/moviesUtils.js"></script>
+    <script src="js/utils.js"></script>
+    <link href="css/OurStyleSheet.css" rel="stylesheet" />
+
+
+
+
+    <script>
+
+        //----------------------------------------------------------פעולות של טעינת המשחק-----------------------------------------------------
+        popularMovies = [];
+        lessPopMovies = [];
+        nonPopMovies = [];
+
+
+
+        //נמלא את המערכים של הסרטים
+        totalMovieNum = movies.length;
+        first = Math.round(totalMovieNum / 3);
+        second = Math.round(2 * totalMovieNum / 3);
+
+        for (var i = 0; i < first; i++) {
+            popularMovies[popularMovies.length] = movies[i];
+        }
+        for (var j = first; j < second; j++) {
+            lessPopMovies[lessPopMovies.length] = movies[j];
+        }
+        for (var k = second; k < totalMovieNum; k++) {
+            nonPopMovies[nonPopMovies.length] = movies[k];
+        }
+
+        //לקחת את השרשור של השחקנים והז'אנרים מכל הסרטים ולהפוך אותם למערכים שאפשר לעבוד איתם
+        actorsSP = [];
+        genresSP = [];
+        for (var j = 0; j < movies.length; j++) {
+            str = movies[j].genre;
+            temp1 = str.split(", ");
+            for (var i = 0; i < temp1.length; i++) {
+                genresSP[genresSP.length] = temp1[i];
+            }
+
+            temp2 = movies[j].actors.split(", ");
+            for (var i = 0; i < temp2.length; i++) {
+                actorsSP[actorsSP.length] = temp2[i];
+            }
+        }
+
+
+        //נבנה מערך ייחודי של שחקנים שממנו ניקח תשובות לשאלות
+        uniqueArrActors = [];
+        for (var j = 0; j < actorsSP.length; j++) //מילוי המערך הייחודי של הז'אנרים
+        {
+            doesExist = false;
+            for (var i = 0; i < uniqueArrActors.length; i++) {
+                if (uniqueArrActors[i] == actorsSP[j]) {
+                    doesExist = true;
+                    break;
+                }
+            }
+            if (!doesExist) {
+                uniqueArrActors[uniqueArrActors.length] = actorsSP[j];
+            }
+        }
+
+        //נבנה מערך ייחודי לז'אנרים שממנו ניקח תשובות לשאלות
+        uniqueArrGenre = [];
+        for (var j = 0; j < genresSP.length; j++) {
+            doesExist = false;
+            for (var i = 0; i < uniqueArrGenre.length; i++) {
+                if (uniqueArrGenre[i] == genresSP[j]) {
+                    doesExist = true;
+                    break;
+                }
+            }
+            if (!doesExist) {
+                uniqueArrGenre[uniqueArrGenre.length] = genresSP[j];
+            }
+        }
+
+        //נבנה מערך ייחודי של במאים שממנו ניקח תשובות לשאלות
+        uniqueArrDirector = [];
+        for (var i = 0; i < movies.length; i++) {
+            doesExist = false;
+            for (var j = 0; j < uniqueArrDirector.length; j++) {
+                if (uniqueArrDirector[j] == movies[i].director) {
+                    doesExist = true;
+                    break;
+                }
+            }
+            if (!doesExist) {
+                uniqueArrDirector[uniqueArrDirector.length] = movies[i].director;
+            }
+        }
+
+        //-------------------------------------------------------------------------------------------------------------------
+
+
+        function CheatMode() {
+            bArr = document.getElementsByClassName("ans")
+            for (var i = 0; i < bArr.length; i++) {
+                if (bArr[i].innerHTML == question.rightAns) {
+                    btnNum = "btn";
+                    btnNum += (i + 1); //נבנה את שם הכפתור סשבו נמצאת התשובה הנכונה
+                    el = document.getElementById(btnNum); //נתפוס את הכפתור
+                    el.style.backgroundColor = "skyblue"; //נשנה את הצבע שלו
+                }
+            }
+        } //מסמן את התשובה הנכונה בצבע
+
+
+        function ResetButtons() {
+            let el1 = document.getElementById("btn1");
+            el1.style.backgroundColor = "royalblue";
+            el1.classList.remove("shake");
+
+            let el2 = document.getElementById("btn2");
+            el2.style.backgroundColor = "royalblue";
+            el2.classList.remove("shake");
+
+            let el3 = document.getElementById("btn3");
+            el3.style.backgroundColor = "royalblue";
+            el3.classList.remove("shake");
+
+            let el4 = document.getElementById("btn4");
+            el4.style.backgroundColor = "royalblue";
+            el4.classList.remove("shake");
+
+        }
+
+
+        function GetRandomMovie(userLVL) {
+            let chosenM;
+
+            if (userLVL == 1) {
+                mNum = getRndInteger(popularMovies.length - 1);
+                chosenM = popularMovies[mNum];
+            }
+            else if (userLVL == 2) {
+                mNum = getRndInteger(lessPopMovies.length - 1);
+                chosenM = lessPopMovies[mNum];
+            }
+            else if (userLVL == 3) {
+                mNum = getRndInteger(nonPopMovies.length - 1);
+                chosenM = nonPopMovies[mNum];
+            }
+            return chosenM;
+        } //מחזיר אובייקט של סרט רנדומאלי לפי הרמה שבה נמצא השחקן
+
+
+        function getRndInteger(max) {
+            min = 0;
+            return Math.floor(Math.random() * (max - min)) + min;
+        } //מחזיר מס' סרט רנדומאלי מתוך מערך סרטים
+
+
+        function SavePlayerIntoLS() {
+            let player = {
+                LVL: userLVL,
+                strks: strikes,
+                scores: score,
+                QNiL: qNumInLVL
+            }
+
+            afterStringfy = JSON.stringify(player);
+            localStorage[userName] = afterStringfy;
+        } // שמירה של התקדמות השחק באחסון המקומי על פי השם שהזין במסך הכניסה
+
+
+        function BuildQuestion(chosenM, qNumInLVL) {
+            //נבנה אובייקט של שאלה. כל פעם הוא ייבנה עם תוכן רלוונטי למצב השחקן במשחק
+            question = {
+                moviePhoto: chosenM.poster_path, //נשמור את הפוסטר של הסרט
+                movieName: chosenM.title //נשמור את שם הסרט
+            }
+
+            if (qNumInLVL == 1) //אם השחקן הוא בשאלה הראשונה בשלב
+            {
+                //נייצר מערך זמני של ז'אנרים ללא הז'אנר הנכון של הסרט
+                let rightA = chosenM.genre.split(",");
+                let tempOnlyWrong = tempArr(uniqueArrGenre, rightA[0]);
+                let tempAnsForQ =
+                    [
+                        tempOnlyWrong[0],
+                        tempOnlyWrong[1],
+                        tempOnlyWrong[2],
+                        rightA[0]
+                    ];
+                tempAnsForQ = shuffle(tempAnsForQ); //עכשיו יהיה מערך מעורבב של 3 תשובות שגויות ואחת נכונה
+
+                question.rightAns = rightA[0]; //נשמור את הז'אנר הנכון
+                question.answers = tempAnsForQ; //נשמור את מערך התשובות האפשריות
+                question.text = "What is the movie's genre?";
+            }
+            else if (qNumInLVL == 2) //אם השחקן הוא בשאלה השנייה בשלב
+            {
+                //נייצר מערך זמני של שחקנים ללא השחקן הראשי הנכון של הסרט
+                let rightA = chosenM.actors.split(",");
+                let tempOnlyWrong = tempArr(uniqueArrActors, rightA[0]);
+                let tempAnsForQ =
+                    [
+                        tempOnlyWrong[0],
+                        tempOnlyWrong[1],
+                        tempOnlyWrong[2],
+                        rightA[0]
+                    ];
+                tempAnsForQ = shuffle(tempAnsForQ); //עכשיו יהיה מערך מעורבב של 3 תשובות שגויות ואחת נכונה
+
+                question.rightAns = rightA[0]; //נשמור את השחקן הראשי הנכון
+                question.answers = tempAnsForQ; //נשמור את מערך התשובות האפשריות
+                question.text = "Who is the movie's main actor?";
+            }
+            else if (qNumInLVL == 3) //אם השחקן הוא בשאלה האחרונה בשלב
+            {
+                //נייצר מערך זמני של במאים ללא הבמאי הנכון של הסרט
+                let tempOnlyWrong = tempArr(uniqueArrDirector, chosenM.director);
+                let tempAnsForQ =
+                    [
+                        tempOnlyWrong[0],
+                        tempOnlyWrong[1],
+                        tempOnlyWrong[2],
+                        chosenM.director
+                    ];
+                tempAnsForQ = shuffle(tempAnsForQ); //עכשיו יהיה מערך מעורבב של 3 תשובות שגויות ואחת נכונה
+
+                question.rightAns = chosenM.director; //נשמור את הבמאי הנכון
+                question.answers = tempAnsForQ; //נשמור את מערך התשובות האפשריות
+                question.text = "Who is the movie's director?";
+            }
+            return question;
+        } //בנייה של אובייקט שאלה בהתאם למיקום של השחקן במשחק
+
+
+        function tempArr(fullArr, correctAns) {
+            let temp = [];
+            for (var i = 0; i < fullArr.length; i++) {
+                if (fullArr[i] != correctAns) {
+                    temp[temp.length] = fullArr[i];
+                }
+            }
+            return temp;
+        } //יצירת מערך של תשובות אפשריות ללא התשובה הנכונה
+
+
+        function shuffle(arr) {
+            var j, x, i;
+            for (i = arr.length - 1; i > 0; i--) {
+                j = Math.floor(Math.random() * (i + 1));
+                x = arr[i];
+                arr[i] = arr[j];
+                arr[j] = x;
+            }
+            return arr;
+        } //ערבוב של מערך
+
+        function imgError(image) {
+            image.onerror = "";
+            image.src = "images/replacement-poster.jpg";
+            return true;
+        } //אם תמונה לא עולה כמו שצריך כי הקישור שלה שבור - להחליף אותה בפוסטר דיפולטיבי
+
+        //----------------------------------------------------------מהלך המשחק-----------------------------------------------------//
+
+        userLVL = -1; //הרמה של השחקן
+        qNumInLVL = -1; //מס' השאלה בה הוא נמצא בתוך השלב
+        score = -1; //ניקוד מצטבר
+        strikes = -1; //פסילות מצטברות
+
+
+
+        function WelcomeScreen() {
+            //ראשית נסיר את הכפתור מהדף
+            el = document.getElementById("firstBTN");
+            par = el.parentNode;
+            par.removeChild(el);
+
+            let str = "<div id='aitc' class='container-login100'>";
+            str += "<div class='wrap-login100 p-l-55 p-r-55 p-t-80 p-b-30'>";
+            str += " <form class='login100-form validate-form'>";
+            str += "<span class='login100-form-title p-b-37'> Welcome to TriviMovie!</span>";
+            str += "<div class='wrap-input100 validate-input m-b-20' data-validate='Please enter your name'>";
+            str += "<input id='un' class='input100' type='text' name='username' placeholder='Enter Your Name'>";
+            str += "<span class='focus-input100'></span>";
+            str += "</div>";
+            str += "<div class='container-login100-form-btn'>";
+            str += " <button onclick='CheckForSavedGame()' class='login100-form-btn'> Let's Go</button>";
+            str += "</div>";
+            str += "</form>";
+            str += "</div>";
+            str += "</div>";
+
+            writeToDiv("ph", str, true);
+
+        } //הצגה של מסך הלוגאין של המשחק
+
+
+        function CheckForSavedGame() {
+
+            //נשמור את השם שהזין השחקן במסך הפתיחה
+            element = document.getElementById("un");
+            userName = element.value;
+
+            if (userName == "") {
+                StartNewGame();
+            }
+            else {
+                //נבדוק אם קיימים נתונים ממשחק קודם
+                if (localStorage[userName] != undefined) {
+                    playerDets = JSON.parse(localStorage[userName]);
+
+                    AskIfToContinue();
+                }
+                else {
+                    StartNewGame();
+                }
+            }
+        }
+
+
+        function AskIfToContinue() {
+
+
+
+            //ראשית נסיר את התוכן שקיים כרגע בדף
+            let el = document.getElementById("aitc");
+            par = el.parentNode;
+            par.removeChild(el);
+
+
+            let str = "<div class='container-login100'>";
+            str += "<div class='wrap-login100 p-l-55 p-r-55 p-t-80 p-b-30'>";
+            str += "<span class='login100-form-title p-b-37'> Hi ";
+            str += userName + "!";
+            str += "</span>"
+            str += "<span class='p-b-37'>Would you like to continue your game?</span>";
+            str += "<div class='container-login100-form-btn'>";
+            str += "<button class='login100-form-btn' onclick='ContinueSavedGame()'>Continue Last Game</button>";
+            str += "</div>";
+            str += "<div class='container-login100-form-btn'>";
+            str += "<button class='login100-form-btn' onclick='StartNewGame()'>Start A New Game</button>";
+            str += "</div>";
+            str += "</div>";
+            str += "</div>";
+
+            writeToDiv("ph", str, true);
+
+        } //הצגה של שאלה האם רוצה להמשיך לשחק ביוזר הזה או לעשות משחק חדש
+
+
+        function StartNewGame() {
+
+            userLVL = 1;
+            qNumInLVL = 1;
+            score = 0;
+            strikes = 0;
+            BuildFirstQuestionPlace();
+            play();
+        }
+
+
+        function ContinueSavedGame() {
+            //נשלוף את הנתונים השמורים ונשחק על פיהם
+            userLVL = playerDets.LVL;
+            qNumInLVL = playerDets.QNiL;
+            score = playerDets.scores;
+            strikes = playerDets.strks;
+            BuildFirstQuestionPlace();
+            play();
+        }
+
+        function play() {
+            console.log(movies);
+
+            isPhotoLoaded = false;
+
+            chosenM = GetRandomMovie(userLVL);
+            question = BuildQuestion(chosenM, qNumInLVL);
+
+            ResetButtons();
+
+            writeToDiv("photo-ph", "<img src='" + question.moviePhoto + "' onerror='imgError(this)'/>", true);
+            writeToDiv("title-ph", question.movieName, true);
+            writeToDiv("q-ph", question.text, true);
+            writeToDiv("btn1", question.answers[0], true);
+            writeToDiv("btn2", question.answers[1], true);
+            writeToDiv("btn3", question.answers[2], true);
+            writeToDiv("btn4", question.answers[3], true);
+            writeToDiv("stats", score + " - " + strikes, true);
+
+        }
+
+
+        function BuildFirstQuestionPlace() {
+
+            el = document.getElementById("container");
+            el.classList.add("blur"); //נשים תמונת רקע מטושטשת
+
+            //נבנה את אזור הניקוד
+            let build = "<ul class='score-board'>";
+            build += "<li class='pts'>Points</li>";
+            build += "<li id='stats'> 0 - 0 </li>";
+            build += "<li class='stk'>Strikes</li>";
+            build += "</ul>";
+            //נבנה את כרטיס הסרט
+            build += "<div class='wrapper'>";
+            build += "<div class='card'>";
+            build += "<div id='photo-ph' onload='photoLoaded()'>";
+            build += "</div>"
+            build += "<div class='descriptions'>";
+            build += "<h1 id='title-ph'>Movie Name</h1>";
+            build += "<p id='q-ph'>Question Content</p>";
+            build += "<button id='btn1' onclick='checkAns(this)' class='ans'> Answer Num. 1 </button>";
+            build += "<button id='btn2' onclick='checkAns(this)' class='ans'> Answer Num. 2 </button>";
+            build += "<button id='btn3' onclick='checkAns(this)' class='ans'> Answer Num. 3 </button>";
+            build += "<button id='btn4' onclick='checkAns(this)' class='ans'> Answer Num. 4 </button>";
+            build += "</div>";
+            build += "</div>";
+            build += "</div>";
+            //נוסיף את כפתור הרמאות
+            build += "<button id='cheatBTN' onclick='CheatMode()'>Cheat</button>"
+
+            writeToDiv("container", build, true);
+
+            play();
+        } //יצירת האלמנטים על המסך שלתוכם יוכנס התוכן
+
+
+        function checkAns(ctrl) {
+            if (ctrl.innerHTML == question.rightAns) //אם לחצו על הכפתור עם התשובה הנכונה
+            {
+                btnID = ctrl.id;
+                el = document.getElementById(btnID);
+                el.style.backgroundColor = "lightgreen"; //נבצע בירוק את התשובה הנכונה שסומנה
+
+                qNumInLVL++; //שיעבור לשאלה הבאה
+                score++;    //נעלה לו את הניקוד
+                if (score == 9) {
+                    GameOver("win");
+                }
+                else if (qNumInLVL > 3) //אם התשובה הזו הייתה על השאלה האחרונה בשלב
+                {
+                    qNumInLVL = 1;
+                    userLVL++;
+                    if (userName != "") {
+                        SavePlayerIntoLS(); //שמירה לאחסון המקומי
+                    }
+                    PassLevel();
+                    play();
+                }
+                else {
+                    if (userName != "") {
+                        SavePlayerIntoLS(); //שמירה לאחסון המקומי
+                    }
+                    setTimeout(play, 500);
+                }
+            }
+            else {
+                btnID = ctrl.id;
+                el = document.getElementById(btnID);
+                el.classList.add("shake"); //נרעיד את התשובה הלא נכונה שסומנה
+                el.style.backgroundColor = "red";
+
+                strikes++;
+                if (userName != "") {
+                    SavePlayerIntoLS(); //שמירה לאחסון המקומי
+                }
+                if (strikes >= 3) {
+                    GameOver("lose");
+                }
+                else {
+                    setTimeout(play, 400)
+                }
+            }
+        } //בדיקה האם המשתמש לחץ על הכפתור עם התשובה הנכונה ואם כן / לא אז לבצע פעולות
+
+
+        function GameOver(status) {
+
+            if (status == "win") {
+                let str = "<div class='container-login100'>";
+                str += "<div class='wrap-login100 p-l-55 p-r-55 p-t-80 p-b-30'>";
+                str += "<span class='login100-form-title p-b-37'>CONGRATULATIONS!</span>";
+                str += "<h5>Your'e a TriviMovie Legend</h5>";
+                str += "<span class='p-b-37'>Your Score: "
+                str += score;
+                str += " </span>";
+                str += "<div class='container-login100-form-btn'>";
+                str += "<button class='login100-form-btn' onclick='location.reload()'>Start A New Game</button></div>";
+                str += "</div>";
+                str += "</div>";
+
+                writeToDiv("container", str, true);
+
+                strikes = 0;
+                score = 0;
+                qNumInLVL = 1;
+                userLVL = 1;
+
+                //נמחק את האחסון המקומי של המשחק
+                localStorage.removeItem(userName);
+            }
+            else {
+
+                let str = "<div class='container-login100'>";
+                str += "<div class='wrap-login100 p-l-55 p-r-55 p-t-80 p-b-30'>";
+                str += "<span class='login100-form-title p-b-37'>GAME OVER</span>";
+                str += "<span class='p-b-37'>Your Score: "
+                str += score;
+                str += " </span>";
+                str += "<div class='container-login100-form-btn'>";
+                str += "<button class='login100-form-btn' onclick='location.reload()'>Start A New Game</button></div>";
+                str += "</div>";
+                str += "</div>";
+
+
+                writeToDiv("container", str, true);
+
+                strikes = 0;
+                score = 0;
+                qNumInLVL = 1;
+                userLVL = 1;
+
+                //נמחק את האחסון המקומי של המשחק
+                localStorage.removeItem(userName);
+            }
+
+            //להוסיף מחיקה של האחסון המקומי כי נגמר המשחק ואין מאיפה להמשיך יותר
+
+        } //המצגת מסך של הפסד / ניצחון במשחק כאשר הוא נגמר
+
+
+        function PassLevel() {
+
+            let str = "<div class='container-login100'>";
+            str += "<div class='wrap-login100 p-l-55 p-r-55 p-t-80 p-b-30'>";
+            str += "<span class='login100-form-title p-b-37'>LEVEL UP!</span>";
+            str += "<p class='p-b-37'>You'r on fire!</p>";
+            str += "<p> Can you keep the streak going?</p>";
+            str += "<div class='container-login100-form-btn'>";
+            str += "<button class='login100-form-btn' onclick='BuildFirstQuestionPlace()'>CONTINUE</button>";
+            str += "</div>";
+            str += "</div>";
+            str += "</div>";
+
+            writeToDiv("container", str, true);
+
+        } //כאשר השחקן עולה רמה יופיע לו מסך מתאים
+
+    </script>
+
+</head>
+<body onload="init()">
+
+    <div id="container" class="infinite-photo-grid">
+        <div id="ph">
+
+            <button id="firstBTN" onclick="WelcomeScreen()" class="wavy">
+                Welcome to
+                <span style="--i:1;">T</span>
+                <span style="--i:2;">r</span>
+                <span style="--i:3;">i</span>
+                <span style="--i:4;">v</span>
+                <span style="--i:5;">i</span>
+                <span style="--i:6;">M</span>
+                <span style="--i:7;">o</span>
+                <span style="--i:8;">v</span>
+                <span style="--i:9;">i</span>
+                <span style="--i:10;">e</span>
+                <span style="--i:11;">!</span>
+                <p>press to start</p>
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>
